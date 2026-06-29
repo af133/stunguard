@@ -269,7 +269,8 @@ flutter run
 # 👨‍💻 Contributors
 
 - Andre Firmansyah
-- Team StunGuard
+- Ahmad Sapta Handoyono
+- Aulia Putri Maharani
 
 ---
 
