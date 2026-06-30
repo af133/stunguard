@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../beranda/presentation/pages/main_screen.dart';
+import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -148,7 +150,10 @@ class _LoginPageState extends State<LoginPage> {
                     
                     ElevatedButton(
                       onPressed: () {
-                        // TODO: Implement OTP logic
+                        // TODO: Implement actual OTP logic
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const MainScreen()),
+                        );
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -161,6 +166,31 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     
                     const SizedBox(height: 24),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const RegisterPage()),
+                          );
+                        },
+                        child: Text.rich(
+                          TextSpan(
+                            text: 'Belum punya akun? ',
+                            style: Theme.of(context).textTheme.bodySmall,
+                            children: [
+                              TextSpan(
+                                text: 'Daftar sebagai Kader',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Center(
                       child: Text.rich(
                         TextSpan(
