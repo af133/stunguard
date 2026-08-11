@@ -1,6 +1,8 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func SetupRoutes(r *gin.Engine) {
 	r.GET("/", func(c *gin.Context) {
@@ -8,4 +10,5 @@ func SetupRoutes(r *gin.Engine) {
 			"message": "Hello StunGuard",
 		})
 	})
+	RegisterOrLoginPosyanduRoutes(r)
 }

@@ -18,6 +18,7 @@ type User struct {
 	NomorTelepon   string `gorm:"size:20"`
 	NamaPosyandu   string `gorm:"size:100"`
 	WilayahKerja   string `gorm:"size:100"`
+	Password       string `gorm:"size:255;not null"`
 	Role           string `gorm:"size:50"`                 
 	StatusValidasi string `gorm:"size:20;default:'pending'"`
 }
