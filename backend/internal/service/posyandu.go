@@ -11,6 +11,9 @@ import (
 type UserService struct {
 	Repo *repositories.UserRepository
 }
+type BalitaService struct {
+	Repo *repositories.BalitaRepository
+}
 
 func NewUserService(repo *repositories.UserRepository) *UserService {
 	return &UserService{
@@ -18,7 +21,12 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 	}
 }
 
-// Input struct untuk Register
+func NewBalitaService(repo *repositories.BalitaRepository) *BalitaService {
+    return &BalitaService{
+        Repo: repo,
+    }
+}
+
 type RegisterInput struct {
 	NamaLengkap  string `json:"nama_lengkap" binding:"required"`
 	NIK          string `json:"nik" binding:"required"`
@@ -80,4 +88,12 @@ func (s *UserService) LoginPetugas(input LoginInput) (*internal.User, error) {
 		return nil, errors.New("NIK atau password salah")
 	}
 	return user, nil
+}
+func (b *BalitaService) GetAllBalita() ([]internal.Balita, error) {
+    var balita []internal.Balita
+    err := b.Repo.GetAllBalita(&balita)
+    if err != nil {
+        return nil, err
+    }
+    return balita, nil
 }

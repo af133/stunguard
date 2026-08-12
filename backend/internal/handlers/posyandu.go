@@ -12,10 +12,18 @@ type UserHandler struct {
 	UserService *service.UserService
 }
 
+type BalitaHandler struct {
+    BalitaService *service.BalitaService
+}
 func NewUserHandler(userService *service.UserService) *UserHandler {
 	return &UserHandler{
 		UserService: userService,
 	}
+}
+func NewBalitaHandler(balitaService *service.BalitaService) *BalitaHandler {
+    return &BalitaHandler{
+        BalitaService: balitaService,
+    }
 }
 func (h *UserHandler) Register(ctx *gin.Context) {
 	var input service.RegisterInput
@@ -59,4 +67,22 @@ func (h *UserHandler) LoginPetugas(ctx *gin.Context) {
 		"token":   token,
 		"data":    user,
 	})
+}
+
+func (h *BalitaHandler) GetAllBalita(ctx *gin.Context) {
+    balita, err := h.BalitaService.GetAllBalita()
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+			"success":false,
+			},
+		)
+        return
+    }
+
+    ctx.JSON(http.StatusOK, gin.H{
+        "message": "Berhasil mengambil data balita",
+        "data":    balita,
+		"success":true,
+    })
 }

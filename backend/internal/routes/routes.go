@@ -10,5 +10,6 @@ func SetupRoutes(r *gin.Engine) {
 			"message": "Hello StunGuard",
 		})
 	})
+	BalitaRoute(r)
 	RegisterOrLoginPosyanduRoutes(r)
 }

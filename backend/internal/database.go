@@ -25,16 +25,19 @@ type User struct {
 
 type Balita struct {
 	gorm.Model
-	KaderID            uint
-	NamaLengkap        string    `gorm:"size:100;not null"`
-	NIKBalita          string    `gorm:"size:16"`
-	TanggalLahir       time.Time `gorm:"type:date"`
-	JenisKelamin       string    `gorm:"size:1"` 
-	NamaIbu            string    `gorm:"size:100"`
-	Alamat             string    `gorm:"type:text"`
-	BBLR               bool      `gorm:"default:false"`
-	DurasiAsiEksklusif string    `gorm:"size:50"`
-	UsiaMulaiMpasi     string    `gorm:"size:50"`
+	KaderID            	uint
+	NamaLengkap        	string    `gorm:"size:100;not null"`
+	NIKBalita          	string    `gorm:"size:16"`
+	TanggalLahir       	time.Time `gorm:"type:date"`
+	JenisKelamin       	string    `gorm:"size:1"` 
+	NamaIbu            	string    `gorm:"size:100"`
+	Provinsi           	string    `gorm:"type:text"`
+	Kecamantan         	string    `gorm:"type:text"`
+	Kelurahan          	string    `gorm:"type:text"`
+	Desa             	string    `gorm:"type:text"`
+	BBLR               	bool      `gorm:"default:false"`
+	DurasiAsiEksklusif 	string    `gorm:"size:50"`
+	UsiaMulaiMpasi     	string    `gorm:"size:50"`
 }
 type NutrisiHarian struct {
 	gorm.Model

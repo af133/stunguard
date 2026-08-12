@@ -17,4 +17,14 @@ func RegisterOrLoginPosyanduRoutes(r *gin.Engine) {
 		api.POST("/register", userHandler.Register)
 		api.POST("/login/petugas", userHandler.LoginPetugas)
 	}
+
+}
+func BalitaRoute( r *gin.Engine){
+	balitaRepo := repositories.NewBalitaRepository();
+	balitaService := service.NewBalitaService(balitaRepo);
+	balitaHandler := handlers.NewBalitaHandler(balitaService);
+	api := r.Group("/api")
+	{
+		api.GET("/balita",balitaHandler.GetAllBalita);
+	}
 }
