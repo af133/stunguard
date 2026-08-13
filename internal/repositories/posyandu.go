@@ -71,9 +71,9 @@ func (r *UserRepository) CreateUser(user *internal.User) error {
 	result := r.DB.Create(user)
 	return result.Error
 }
-func (r *UserRepository) FindByNIK(nik string) (*internal.User, error) {
+func (r *UserRepository) FindByEmail(email string) (*internal.User, error) {
 	var user internal.User
-	result := r.DB.Where("nik = ?", nik).First(&user)
+	result := r.DB.Where("email = ?", email).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

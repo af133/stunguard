@@ -64,7 +64,7 @@ func (h *UserHandler) LoginPetugas(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-	token, err := utils.GenerateToken(user.ID, user.NIK, user.Role)
+	token, err := utils.GenerateToken(user.ID, user.Email, user.Role)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menghasilkan token"})
 		return

@@ -8,14 +8,14 @@ import (
 var jwtSecret = []byte("stunguard_super_secret_key_2026")
 type JWTClaim struct {
 	ID   uint   `json:"id"`
-	NIK  string `json:"nik"`
+	Email  string `json:"email"`
 	Role string `json:"role"`
 	jwt.RegisteredClaims
 }
-func GenerateToken(id uint, nik string, role string) (string, error) {
+func GenerateToken(id uint, email string, role string) (string, error) {
 	claims := JWTClaim{
 		ID:   id,
-		NIK:  nik,
+		Email:  email,
 		Role: role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
