@@ -1,35 +1,107 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import DashboardPage from './features/dashboard/DashboardPage';
-import DataAnakPage from './features/data-anak/DataAnakPage';
-import LaporanPage from './features/laporan/LaporanPage';
-import Layout from './shared/components/Layout';
-import { Settings } from 'lucide-react';
-import './App.css';
+import { AuthProvider } from './features/auth/AuthContext';
+import ProtectedRoute from './features/auth/ProtectedRoute';
 
-// Placeholder for Pengaturan page
-const PengaturanPage = () => (
-  <Layout>
-    <div className="max-w-[1200px] mx-auto flex flex-col items-center justify-center h-[60vh] text-center">
-      <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-        <Settings size={28} className="text-gray-400" />
-      </div>
-      <h2 className="text-xl font-semibold text-gray-700 mb-2">Pengaturan</h2>
-      <p className="text-sm text-gray-400">Halaman pengaturan akan segera tersedia.</p>
-    </div>
-  </Layout>
-);
+import LoginPage from './features/auth/LoginPage';
+import DashboardPage from './features/dashboard/DashboardPage';
+import PetaRisikoPage from './features/peta-risiko/PetaRisikoPage';
+import DataAnakPage from './features/data-anak/DataAnakPage';
+import DetailAnakPage from './features/data-anak/DetailAnakPage';
+import PosyanduPage from './features/manajemen-posyandu/PosyanduPage';
+import AlertPage from './features/alert/AlertPage';
+import LaporanPage from './features/laporan/LaporanPage';
+import AnalitikPage from './features/analitik/AnalitikPage';
+import PengaturanPage from './features/pengaturan/PengaturanPage';
+
+import './App.css';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/data-anak" element={<DataAnakPage />} />
-        <Route path="/laporan" element={<LaporanPage />} />
-        <Route path="/pengaturan" element={<PengaturanPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Route */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/peta-risiko"
+            element={
+              <ProtectedRoute>
+                <PetaRisikoPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/data-anak"
+            element={
+              <ProtectedRoute>
+                <DataAnakPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/data-anak/:id"
+            element={
+              <ProtectedRoute>
+                <DetailAnakPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/posyandu"
+            element={
+              <ProtectedRoute>
+                <PosyanduPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/alert"
+            element={
+              <ProtectedRoute>
+                <AlertPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/laporan"
+            element={
+              <ProtectedRoute>
+                <LaporanPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analitik"
+            element={
+              <ProtectedRoute>
+                <AnalitikPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pengaturan"
+            element={
+              <ProtectedRoute>
+                <PengaturanPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
