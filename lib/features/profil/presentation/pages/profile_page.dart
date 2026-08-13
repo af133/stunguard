@@ -1,9 +1,44 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../sync/data/services/sync_manager.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  bool _isSyncing = false;
+  final SyncManager _syncManager = SyncManager();
+
+  Future<void> _triggerManualSync() async {
+    setState(() => _isSyncing = true);
+
+    final result = await _syncManager.triggerSync();
+
+    setState(() => _isSyncing = false);
+
+    if (mounted) {
+      if (result.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sinkronisasi Berhasil! ${result.syncedCount} data berhasil disinkronkan ke server.'),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sinkronisasi Gagal: ${result.errorMessage}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,27 +73,15 @@ class ProfilePage extends StatelessWidget {
                               ),
                         ),
                         const SizedBox(height: 24),
-                        Stack(
+                        const Stack(
                           children: [
-                            const CircleAvatar(
+                            CircleAvatar(
                               radius: 50,
                               backgroundColor: Colors.white,
                               child: CircleAvatar(
                                 radius: 46,
                                 backgroundColor: AppColors.primaryLight,
                                 child: Icon(Icons.person, size: 50, color: AppColors.primary),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.camera_alt, size: 20, color: AppColors.primary),
                               ),
                             ),
                           ],
@@ -80,7 +103,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 // Stats Card
                 Positioned(
                   bottom: -40,
@@ -127,8 +150,43 @@ class ProfilePage extends StatelessWidget {
                 ),
               ],
             ),
-            
-            const SizedBox(height: 60), // Space for the floating card
+
+            const SizedBox(height: 60),
+
+            // Sync Button Card
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Card(
+                color: AppColors.primaryLight,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.cloud_sync, color: AppColors.primary, size: 36),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Mode Offline-First', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            Text('Data tersimpan aman di HP. Tekan untuk sinkronisasi server.', style: TextStyle(fontSize: 11, color: Colors.grey.shade700)),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                        onPressed: _isSyncing ? null : _triggerManualSync,
+                        child: _isSyncing
+                            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : const Text('Paksa Sync', style: TextStyle(color: Colors.white, fontSize: 12)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // Menu List
             Padding(
@@ -137,19 +195,17 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   _buildMenuItem(context, Icons.person_outline, 'Informasi Pribadi'),
                   _buildMenuItem(context, Icons.location_on_outlined, 'Data Posyandu'),
-                  _buildMenuItem(context, Icons.settings_outlined, 'Pengaturan Aplikasi'),
-                  const SizedBox(height: 16),
+                  _buildMenuItem(context, Icons.notifications_outlined, 'Pengaturan Notifikasi'),
                   _buildMenuItem(context, Icons.help_outline, 'Pusat Bantuan'),
                   _buildMenuItem(context, Icons.description_outlined, 'Syarat & Ketentuan'),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Logout Button
                   SizedBox(
                     width: double.infinity,
                     child: TextButton.icon(
                       onPressed: () {
-                        // Logout logic
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (_) => const LoginPage()),
                         );
@@ -170,7 +226,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
                   Text(
                     'StuntGuard Versi 1.0.0',

@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../deteksi_risiko/presentation/pages/deteksi_risiko_page.dart';
+import '../../../log_nutrisi/presentation/pages/log_nutrisi_page.dart';
 import '../../../pengukuran/presentation/pages/add_pengukuran_page.dart';
 import '../../../pengukuran/presentation/providers/pengukuran_provider.dart';
 import '../../../riwayat_pertumbuhan/presentation/pages/riwayat_pertumbuhan_page.dart';
+import '../../../scan_wajah/presentation/pages/face_scan_page.dart';
 import '../../domain/entities/balita_entity.dart';
 import '../providers/balita_provider.dart';
 import 'add_balita_page.dart';
@@ -215,8 +217,11 @@ class _BalitaDetailPageState extends ConsumerState<BalitaDetailPage> {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Fitur Scan Wajah CV (F-05) dibuka.')),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LogNutrisiPage(balita: balita),
+                              ),
                             );
                           },
                           style: OutlinedButton.styleFrom(
@@ -226,14 +231,40 @@ class _BalitaDetailPageState extends ConsumerState<BalitaDetailPage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          icon: const Icon(Icons.camera_front, color: AppColors.primary, size: 20),
+                          icon: const Icon(Icons.restaurant, color: AppColors.primary, size: 20),
                           label: const Text(
-                            'Scan Wajah',
+                            'Log Nutrisi',
                             style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FaceScanPage(childName: balita.name),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: BorderSide(color: Colors.teal.shade400),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      icon: Icon(Icons.camera_front, color: Colors.teal.shade700, size: 20),
+                      label: Text(
+                        'Scan Wajah Balita (CV)',
+                        style: TextStyle(color: Colors.teal.shade700, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
                 ],
               ),
