@@ -26,16 +26,16 @@ class AuthState {
   }
 }
 
-class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier() : super(AuthState());
+class AuthNotifier extends Notifier<AuthState> {
+  @override
+  AuthState build() => AuthState();
 
   Future<void> login(String phone, String role) async {
     state = state.copyWith(isLoading: true, error: null);
-    
+
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    
-    // TODO: Implement actual backend/database login
+
     // Mock user for now
     state = state.copyWith(
       isLoading: false,
@@ -52,11 +52,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> register(UserEntity newUser) async {
     state = state.copyWith(isLoading: true, error: null);
-    
+
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    
-    // TODO: Implement actual registration logic
+
     state = state.copyWith(
       isLoading: false,
       user: newUser,
@@ -68,6 +67,4 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier();
-});
+final authProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
-import 'home_page.dart';
+import '../../../balita/presentation/pages/add_balita_page.dart';
+import '../../../balita/presentation/pages/balita_list_page.dart';
 import '../../../profil/presentation/pages/profile_page.dart';
+import 'home_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -15,23 +17,90 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    const Center(child: Text('Data Anak')),
+    const BalitaListPage(),
     const SizedBox.shrink(), // Placeholder for Skrining+
-    const Center(child: Text('Laporan')),
+    const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.insert_drive_file_outlined, size: 64, color: AppColors.primary),
+          SizedBox(height: 12),
+          Text('Laporan Posyandu Bulanan', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          SizedBox(height: 4),
+          Text('Modul Laporan (F-07 / F-08) dapat diekspor di sini.', style: TextStyle(color: Colors.grey)),
+        ],
+      ),
+    ),
     const ProfilePage(),
   ];
+
+  void _showAddActionModal() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Pilih Tindakan Skrining',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: AppColors.primaryLight,
+                  child: Icon(Icons.person_add, color: AppColors.primary),
+                ),
+                title: const Text('Registrasi Balita Baru', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('Daftarkan profil anak 0–59 bulan'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AddBalitaPage()),
+                  );
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: AppColors.primaryLight,
+                  child: Icon(Icons.straighten, color: AppColors.primary),
+                ),
+                title: const Text('Input Pengukuran & Z-Score', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('Pilih balita lalu catat TB, BB, LiLA'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _currentIndex = 1; // Go to Balita list page to pick child
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Open Skrining options
-        },
+        onPressed: _showAddActionModal,
         backgroundColor: AppColors.primary,
         shape: const CircleBorder(),
-        elevation: 2,
+        elevation: 3,
         child: const Icon(Icons.add, color: Colors.white, size: 32),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -39,6 +108,7 @@ class _MainScreenState extends State<MainScreen> {
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
         color: Colors.white,
+        elevation: 8,
         child: SizedBox(
           height: 60,
           child: Row(
