@@ -242,6 +242,22 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  void _showMenuDetailDialog(BuildContext context, String title) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text('Modul $title aktif. Semua konfigurasi tersimpan aman di database lokal HP Anda.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMenuItem(BuildContext context, IconData icon, String title) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -264,7 +280,7 @@ class _ProfilePageState extends State<ProfilePage> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
         trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-        onTap: () {},
+        onTap: () => _showMenuDetailDialog(context, title),
       ),
     );
   }

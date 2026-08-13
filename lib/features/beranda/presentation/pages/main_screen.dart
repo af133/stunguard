@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../balita/presentation/pages/add_balita_page.dart';
 import '../../../balita/presentation/pages/balita_list_page.dart';
+import '../../../laporan/presentation/pages/laporan_page.dart';
 import '../../../profil/presentation/pages/profile_page.dart';
 import 'home_page.dart';
 
@@ -19,18 +20,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomePage(),
     const BalitaListPage(),
     const SizedBox.shrink(), // Placeholder for Skrining+
-    const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.insert_drive_file_outlined, size: 64, color: AppColors.primary),
-          SizedBox(height: 12),
-          Text('Laporan Posyandu Bulanan', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          SizedBox(height: 4),
-          Text('Modul Laporan (F-07 / F-08) dapat diekspor di sini.', style: TextStyle(color: Colors.grey)),
-        ],
-      ),
-    ),
+    const LaporanPage(),
     const ProfilePage(),
   ];
 
