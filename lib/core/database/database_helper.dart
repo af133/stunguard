@@ -141,5 +141,114 @@ class DatabaseHelper {
     await db.execute('CREATE INDEX idx_pengukuran_sync ON pengukuran(sync_status)');
     await db.execute('CREATE INDEX idx_log_nutrisi_child_date ON log_nutrisi(child_id, date)');
     await db.execute('CREATE INDEX idx_sync_queue_retry ON sync_queue(retry_count)');
+
+    // Seed dummy data
+    await seedDummyData(db);
+  }
+
+  static Future<void> seedDummyData(Database db) async {
+    final now = DateTime.now().toIso8601String();
+    
+    // Check if balita table is empty
+    final count = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM balita'));
+    if (count != null && count > 0) return;
+
+    // Seed Balita
+    await db.insert('balita', {
+      'id': 'balita_1',
+      'name': 'Ahmad Farhan',
+      'nik': '3273011205220001',
+      'birth_date': '2025-06-14',
+      'gender': 'L',
+      'mother_name': 'Siti Aminah',
+      'address': 'Jl. Mawar No. 12, RT 02/RW 05',
+      'bblr_history': 'tidak',
+      'asi_eksklusif_duration': 6,
+      'mpasi_start_age': 6,
+      'sync_status': 'SYNCED',
+      'retry_count': 0,
+      'created_at': now,
+      'updated_at': now,
+    });
+
+    await db.insert('balita', {
+      'id': 'balita_2',
+      'name': 'Aisyah Putri',
+      'nik': '3273015509230002',
+      'birth_date': '2024-10-15',
+      'gender': 'P',
+      'mother_name': 'Dewi Lestari',
+      'address': 'Jl. Melati No. 5, RT 01/RW 03',
+      'bblr_history': 'ya',
+      'asi_eksklusif_duration': 4,
+      'mpasi_start_age': 6,
+      'sync_status': 'SYNCED',
+      'retry_count': 0,
+      'created_at': now,
+      'updated_at': now,
+    });
+
+    await db.insert('balita', {
+      'id': 'balita_3',
+      'name': 'Bima Rizky',
+      'nik': '3273010301240003',
+      'birth_date': '2025-12-03',
+      'gender': 'L',
+      'mother_name': 'Rina Wati',
+      'address': 'Jl. Anggrek No. 8, RT 03/RW 02',
+      'bblr_history': 'tidak',
+      'asi_eksklusif_duration': 6,
+      'mpasi_start_age': 6,
+      'sync_status': 'SYNCED',
+      'retry_count': 0,
+      'created_at': now,
+      'updated_at': now,
+    });
+
+    // Seed Pengukuran
+    await db.insert('pengukuran', {
+      'id': 'meas_1',
+      'child_id': 'balita_1',
+      'date': '2026-08-01',
+      'tinggi_badan': 75.5,
+      'berat_badan': 9.2,
+      'lila': 13.5,
+      'lingkar_kepala': 44.0,
+      'z_score_tbu': -1.2,
+      'z_score_bbu': -0.8,
+      'sync_status': 'SYNCED',
+      'retry_count': 0,
+      'created_at': now,
+    });
+
+    await db.insert('pengukuran', {
+      'id': 'meas_2',
+      'child_id': 'balita_2',
+      'date': '2026-08-05',
+      'tinggi_badan': 78.0,
+      'berat_badan': 8.5,
+      'lila': 11.8,
+      'lingkar_kepala': 43.0,
+      'z_score_tbu': -2.4,
+      'z_score_bbu': -2.1,
+      'sync_status': 'SYNCED',
+      'retry_count': 0,
+      'created_at': now,
+    });
+
+    await db.insert('pengukuran', {
+      'id': 'meas_3',
+      'child_id': 'balita_3',
+      'date': '2026-08-10',
+      'tinggi_badan': 68.0,
+      'berat_badan': 7.8,
+      'lila': 12.5,
+      'lingkar_kepala': 42.5,
+      'z_score_tbu': -0.5,
+      'z_score_bbu': -0.2,
+      'sync_status': 'SYNCED',
+      'retry_count': 0,
+      'created_at': now,
+    });
   }
 }

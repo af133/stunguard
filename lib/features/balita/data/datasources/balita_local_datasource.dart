@@ -73,12 +73,22 @@ class BalitaLocalDataSourceImpl implements BalitaLocalDataSource {
       whereArgs = [term, term, term];
     }
 
-    final maps = await db.query(
+    var maps = await db.query(
       'balita',
       where: whereClause,
       whereArgs: whereArgs,
       orderBy: 'updated_at DESC',
     );
+
+    if (maps.isEmpty && (searchQuery == null || searchQuery.isEmpty)) {
+      await DatabaseHelper.seedDummyData(db);
+      maps = await db.query(
+        'balita',
+        where: whereClause,
+        whereArgs: whereArgs,
+        orderBy: 'updated_at DESC',
+      );
+    }
 
     List<BalitaModel> results = maps.map((map) => BalitaModel.fromMap(map)).toList();
 

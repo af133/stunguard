@@ -92,44 +92,57 @@ class _AddPengukuranPageState extends ConsumerState<AddPengukuranPage> {
 
     setState(() => _isSubmitting = true);
 
-    _recalculatePreview();
+    try {
+      _recalculatePreview();
 
-    final tb = double.parse(_tbController.text.trim());
-    final bb = double.parse(_bbController.text.trim());
-    final lila = double.tryParse(_lilaController.text.trim());
-    final lingkarKepala = double.tryParse(_lingkarKepalaController.text.trim());
+      final tb = double.parse(_tbController.text.trim());
+      final bb = double.parse(_bbController.text.trim());
+      final lila = double.tryParse(_lilaController.text.trim());
+      final lingkarKepala = double.tryParse(_lingkarKepalaController.text.trim());
 
-    final now = DateTime.now();
-    final newPengukuran = PengukuranEntity(
-      id: 'meas_${now.millisecondsSinceEpoch}',
-      childId: widget.balita.id,
-      date: _measurementDate,
-      tinggiBadan: tb,
-      beratBadan: bb,
-      lila: lila,
-      lingkarKepala: lingkarKepala,
-      zScoreTbu: _previewZScoreTbu ?? 0.0,
-      zScoreBbu: _previewZScoreBbu ?? 0.0,
-      zScoreBbtb: null,
-      syncStatus: 'PENDING',
-      retryCount: 0,
-      createdAt: now,
-    );
-
-    final success = await ref
-        .read(pengukuranProvider.notifier)
-        .addPengukuran(newPengukuran);
-
-    setState(() => _isSubmitting = false);
-
-    if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pengukuran berhasil disimpan & Z-Score berhasil dihitung!'),
-          backgroundColor: AppColors.primary,
-        ),
+      final now = DateTime.now();
+      final newPengukuran = PengukuranEntity(
+        id: 'meas_${now.millisecondsSinceEpoch}',
+        childId: widget.balita.id,
+        date: _measurementDate,
+        tinggiBadan: tb,
+        beratBadan: bb,
+        lila: lila,
+        lingkarKepala: lingkarKepala,
+        zScoreTbu: _previewZScoreTbu ?? 0.0,
+        zScoreBbu: _previewZScoreBbu ?? 0.0,
+        zScoreBbtb: null,
+        syncStatus: 'PENDING',
+        retryCount: 0,
+        createdAt: now,
       );
-      Navigator.pop(context);
+
+      final success = await ref
+          .read(pengukuranProvider.notifier)
+          .addPengukuran(newPengukuran);
+
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pengukuran berhasil disimpan & Z-Score dihitung!'),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal menyimpan: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 
@@ -143,6 +156,7 @@ class _AddPengukuranPageState extends ConsumerState<AddPengukuranPage> {
         ),
         backgroundColor: AppColors.primary,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white), // Pastikan tombol back terlihat
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -164,18 +178,25 @@ class _AddPengukuranPageState extends ConsumerState<AddPengukuranPage> {
                   children: [
                     const Icon(Icons.child_care, color: AppColors.primary, size: 32),
                     const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.balita.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                        ),
-                        Text(
-                          'Usia: ${widget.balita.ageDisplay} • ${widget.balita.gender == "L" ? "Laki-laki" : "Perempuan"}',
-                          style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                        ),
-                      ],
+                    // PERBAIKAN: Menambahkan Expanded agar teks panjang tidak membuat crash
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.balita.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            'Usia: ${widget.balita.ageDisplay} • ${widget.balita.gender == "L" ? "Laki-laki" : "Perempuan"}',
+                            style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -188,7 +209,7 @@ class _AddPengukuranPageState extends ConsumerState<AddPengukuranPage> {
                   final picked = await showDatePicker(
                     context: context,
                     initialDate: _measurementDate,
-                    firstDate: DateTime(2020),
+                    firstDate: DateTime(2000), // Diperlebar sedikit amannya
                     lastDate: DateTime.now(),
                   );
                   if (picked != null) {
@@ -334,7 +355,7 @@ class _AddPengukuranPageState extends ConsumerState<AddPengukuranPage> {
                 const SizedBox(height: 16),
               ],
 
-              // Medical Disclaimer Banner (Mandatory per PRD C-04)
+              // Medical Disclaimer Banner
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(

@@ -12,39 +12,60 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _isSyncing = false;
-  final SyncManager _syncManager = SyncManager();
+  late final SyncManager _syncManager;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi manager di dalam initState untuk mencegah crash awal
+    _syncManager = SyncManager();
+  }
 
   Future<void> _triggerManualSync() async {
     setState(() => _isSyncing = true);
 
-    final result = await _syncManager.triggerSync();
-
-    setState(() => _isSyncing = false);
-
-    if (mounted) {
-      if (result.success) {
+    try {
+      final result = await _syncManager.triggerSync();
+      
+      if (mounted) {
+        if (result.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Sinkronisasi Berhasil! ${result.syncedCount} data tersinkron.'),
+              backgroundColor: AppColors.primary,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Sinkronisasi Gagal: ${result.errorMessage}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Sinkronisasi Berhasil! ${result.syncedCount} data berhasil disinkronkan ke server.'),
-            backgroundColor: AppColors.primary,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Sinkronisasi Gagal: ${result.errorMessage}'),
+            content: Text('Terjadi kesalahan sistem: $e'),
             backgroundColor: Colors.red,
           ),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSyncing = false);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
+    // MENGHAPUS Scaffold dan menggunakan Container agar aman saat dijadikan Tab Navbar
+    return Container(
+      color: AppColors.background,
+      child: SingleChildScrollView(
         child: Column(
           children: [
             // Top Green Section
@@ -53,8 +74,9 @@ class _ProfilePageState extends State<ProfilePage> {
               alignment: Alignment.bottomCenter,
               children: [
                 Container(
-                  height: 280,
+                  // Menghapus height: 280 statis, menggantinya dengan ruang padding
                   width: double.infinity,
+                  padding: const EdgeInsets.only(bottom: 60), 
                   decoration: const BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.only(
@@ -63,6 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   child: SafeArea(
+                    bottom: false, // Hanya amankan area atas (status bar)
                     child: Column(
                       children: [
                         const SizedBox(height: 16),
@@ -73,18 +96,14 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                         ),
                         const SizedBox(height: 24),
-                        const Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Colors.white,
-                              child: CircleAvatar(
-                                radius: 46,
-                                backgroundColor: AppColors.primaryLight,
-                                child: Icon(Icons.person, size: 50, color: AppColors.primary),
-                              ),
-                            ),
-                          ],
+                        const CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.white,
+                          child: CircleAvatar(
+                            radius: 46,
+                            backgroundColor: AppColors.primaryLight,
+                            child: Icon(Icons.person, size: 50, color: AppColors.primary),
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -99,6 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 color: Colors.white70,
                               ),
                         ),
+                        const SizedBox(height: 16), // Jarak tambahan sebelum kartu
                       ],
                     ),
                   ),
@@ -106,43 +126,43 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 // Stats Card
                 Positioned(
+                  left: 24,
+                  right: 24,
                   bottom: -40,
                   child: Container(
-                    width: MediaQuery.of(context).size.width - 48,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
                       ],
                     ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text('3', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColors.textPrimary)),
-                              Text('Tahun Aktif', style: Theme.of(context).textTheme.bodySmall),
-                            ],
-                          ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('3', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColors.textPrimary)),
+                            Text('Tahun Aktif', style: Theme.of(context).textTheme.bodySmall),
+                          ],
                         ),
                         Container(
                           height: 40,
                           width: 1,
                           color: AppColors.border,
                         ),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text('42', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColors.textPrimary)),
-                              Text('Anak Dipantau', style: Theme.of(context).textTheme.bodySmall),
-                            ],
-                          ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('42', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColors.textPrimary)),
+                            Text('Anak Dipantau', style: Theme.of(context).textTheme.bodySmall),
+                          ],
                         ),
                       ],
                     ),
@@ -159,6 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Card(
                 color: AppColors.primaryLight,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -167,10 +188,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Mode Offline-First', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                            Text('Data tersimpan aman di HP. Tekan untuk sinkronisasi server.', style: TextStyle(fontSize: 11, color: Colors.grey.shade700)),
+                            Text('Data tersimpan aman di HP. Tekan untuk sinkronisasi server.', style: TextStyle(fontSize: 11, color: Colors.black54)),
                           ],
                         ),
                       ),
@@ -211,17 +233,17 @@ class _ProfilePageState extends State<ProfilePage> {
                         );
                       },
                       style: TextButton.styleFrom(
-                        backgroundColor: AppColors.errorLight,
+                        backgroundColor: AppColors.errorLight ?? Colors.red.shade50,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      icon: const Icon(Icons.logout, color: AppColors.error),
+                      icon: const Icon(Icons.logout, color: Colors.red),
                       label: Text(
                         'Keluar Akun',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: AppColors.error,
+                              color: Colors.red,
                             ),
                       ),
                     ),
@@ -279,7 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
           title,
           style: Theme.of(context).textTheme.titleSmall,
         ),
-        trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: () => _showMenuDetailDialog(context, title),
       ),
     );
