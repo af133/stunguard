@@ -125,9 +125,7 @@ func ConnectDB() *gorm.DB {
     _ = godotenv.Load()
     dsn := os.Getenv("DATABASE_URL")
     
-    isLocal := false
     if dsn == "" {
-        isLocal = true
         host := "localhost"
         user := "postgres"
         password := "1234"
@@ -145,32 +143,14 @@ func ConnectDB() *gorm.DB {
     }
 
     fmt.Println("Berhasil terhubung ke PostgreSQL!")
-    if isLocal {
-        fmt.Println("Mode Lokal terdeteksi: Reset total database...")
-        err = DB.Exec("DROP SCHEMA public CASCADE; CREATE SCHEMA public;").Error
-        if err != nil {
-            log.Fatal("Gagal mereset schema database:", err)
-        }
-        fmt.Println("Database berhasil dibersihkan total dari nol.")
+
+    // SELALU DROP SEMUA TABEL DARI NOL (Berlaku Lokal maupun Render)
+    fmt.Println("Melakukan reset total schema database (Drop & Recreate)...")
+    err = DB.Exec("DROP SCHEMA public CASCADE; CREATE SCHEMA public;").Error
+    if err != nil {
+        log.Fatal("Gagal mereset schema database:", err)
     }
-    tablesToReset := []string{
-        "users", "kaders", "balita", "pengukurans",
-        "hasil_deteksi_risikos", "log_nutrisis", "alerts", "laporan_jobs",
-        "posyandus", "puskesmas", "dinas_kesehatans",
-    }
-    fmt.Println("Membersihkan data lama sebelum migrasi (mode development)...")
-    for _, table := range tablesToReset {
-        var exists bool
-        DB.Raw(
-            `SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = ?)`,
-            table,
-        ).Scan(&exists)
-        if exists {
-            if err := DB.Exec(fmt.Sprintf(`TRUNCATE TABLE %q RESTART IDENTITY CASCADE`, table)).Error; err != nil {
-                log.Fatal(fmt.Sprintf("Gagal membersihkan tabel %s: ", table), err)
-            }
-        }
-    }
+    fmt.Println("Database berhasil dibersihkan total dari nol.")
 
     fmt.Println("Menjalankan Auto Migrate tabel...")
     err = DB.AutoMigrate(

@@ -12,4 +12,7 @@ func SetupRoutes(r *gin.Engine) {
 	})
 	BalitaRoute(r)
 	RegisterOrLoginPosyanduRoutes(r)
+	PosyanduRoute(r)
+	DinasKesehatanRoute(r)
+	PuskesmasRoute(r)
 }

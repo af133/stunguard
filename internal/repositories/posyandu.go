@@ -14,6 +14,22 @@ type BalitaRepository struct {
 	DB *gorm.DB
 }
 
+type PosyanduRepository struct {
+    DB *gorm.DB 
+}
+
+type PuskesmasRepository struct {
+    DB *gorm.DB 
+}
+type DinasKesehatanRepository struct {
+    DB *gorm.DB 
+}
+func NewPosyanduRepository() *PosyanduRepository {
+    return &PosyanduRepository{
+        DB: internal.DB,
+    }
+}
+
 func NewBalitaRepository() *BalitaRepository{
 	return &BalitaRepository{
 		DB: internal.DB,
@@ -24,6 +40,17 @@ func NewUserRepository() *UserRepository {
 		DB: internal.DB,
 	}
 }
+func NewPuskesmasRepository() *PuskesmasRepository {
+	return &PuskesmasRepository{
+		DB: internal.DB,
+	}
+}
+func NewDinasKesehatanRepository() *DinasKesehatanRepository {
+    return &DinasKesehatanRepository{
+        DB: internal.DB,
+    }
+}
+
 // Balita ====================================================================
 func (r *BalitaRepository) GetAllBalita(balita *[]internal.Balita) error {
     result := r.DB.Find(balita)
@@ -89,3 +116,104 @@ func (r *UserRepository) FindById(id uint) (*internal.User, error) {
 	return &user, nil
 }
 
+// Posyandu =====================================================
+
+func (r *PosyanduRepository) CreatePosyandu(posyandu *internal.Posyandu) error {
+	result := r.DB.Create(posyandu)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+func (r *PosyanduRepository) FindPosyanduId(id string) (*internal.Posyandu, error) {
+    var posyandu internal.Posyandu
+    err := r.DB.Where("id = ?", id).First(&posyandu).Error
+    if err != nil {
+        return nil, err 
+    }
+    
+    return &posyandu, nil
+}
+func (r *PosyanduRepository) DeletePosyanduId(id string) error {
+    var posyandu internal.Posyandu
+    err := r.DB.Where("id = ?", id).Delete(&posyandu).Error
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+func (r *PosyanduRepository) UpdatePosyandu(id string, posyandu *internal.Posyandu) error {
+    return r.DB.Model(&internal.Posyandu{}).Where("id = ?", id).Updates(posyandu).Error
+}
+
+func (r *PosyanduRepository) GetAllPosyandu(posyandu *[]internal.Posyandu) error {
+    result := r.DB.Find(posyandu)
+    return result.Error        
+}
+
+// Puskesmas =========================================================================
+
+func (r *PuskesmasRepository) GetAllPuskesmas(puskesmas *[]internal.Puskesmas) error{
+    resulst := r.DB.Find(puskesmas)
+    return resulst.Error
+}
+
+func (r *PuskesmasRepository) CreatePuskesmas(puskesmas *internal.Puskesmas) error {
+	result := r.DB.Create(puskesmas)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func (r *PuskesmasRepository) FindPuskesmasId(id string) (*internal.Puskesmas, error) {
+    var puskesmas internal.Puskesmas
+    err := r.DB.Where("id = ?", id).First(&puskesmas).Error
+    if err != nil {
+        return nil, err 
+    }    
+    return &puskesmas, nil
+}
+
+func (r *PuskesmasRepository) UpdatePuskesmas(id string, puskesmas *internal.Puskesmas) error {
+    return r.DB.Model(&internal.Posyandu{}).Where("id = ?", id).Updates(puskesmas).Error
+}
+
+func (r *PuskesmasRepository) DeletePuskesmasId(id string) error {
+    var puskesmas internal.Puskesmas
+    err := r.DB.Where("id = ?", id).Delete(&puskesmas).Error
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
+// Dinas Kesehatan =========================================================================
+
+
+func (r *DinasKesehatanRepository) GetAllDinasKesehatan(dinas *[]internal.DinasKesehatan) error {
+    return r.DB.Find(dinas).Error
+}
+
+func (r *DinasKesehatanRepository) CreateDinasKesehatan(dinas *internal.DinasKesehatan) error {
+    return r.DB.Create(dinas).Error
+}
+
+func (r *DinasKesehatanRepository) FindDinasKesehatanId(id string) (*internal.DinasKesehatan, error) {
+    var dinas internal.DinasKesehatan
+    err := r.DB.Where("id = ?", id).First(&dinas).Error
+    if err != nil {
+        return nil, err
+    }
+    return &dinas, nil
+}
+
+func (r *DinasKesehatanRepository) UpdateDinasKesehatan(id string, dinas *internal.DinasKesehatan) error {
+    return r.DB.Model(&internal.DinasKesehatan{}).Where("id = ?", id).Updates(dinas).Error
+}
+
+func (r *DinasKesehatanRepository) DeleteDinasKesehatanId(id string) error {
+    var dinas internal.DinasKesehatan
+    return r.DB.Where("id = ?", id).Delete(&dinas).Error
+}
