@@ -22,25 +22,24 @@ func AuthRoutes(r *gin.Engine) {
 		api.POST("/forgot-password", userHandler.ForgotPassword)
 	}
 }
-
 func BalitaRoute(r *gin.Engine) {
-	balitaRepo := repositories.NewBalitaRepository()
-	balitaService := service.NewBalitaService(balitaRepo)
-	balitaHandler := handlers.NewBalitaHandler(balitaService)
+    balitaRepo := repositories.NewBalitaRepository()
+    balitaService := service.NewBalitaService(balitaRepo)
+    balitaHandler := handlers.NewBalitaHandler(balitaService)
 
-	api := r.Group("/api/v1")
-	{
-		authenticated := api.Group("/")
-		authenticated.Use(middleware.AuthMiddleware())
-		{
-			authenticated.GET("/balita", balitaHandler.GetAllBalita)
-			authenticated.POST("/balita/create", balitaHandler.CreateBalita)
-			authenticated.PUT("/balita/:id/update", balitaHandler.UpdateBalita)
-			authenticated.GET("/balita/:id/riwayat", balitaHandler.GetRiwayat)
-			authenticated.GET("/balita/:nik", balitaHandler.FindBalitaNIK)
-			authenticated.DELETE("/balita/:nik", balitaHandler.DeleteBalita)
-		}
-	}
+    api := r.Group("/api/v1")
+    {
+        authenticated := api.Group("/")
+        authenticated.Use(middleware.AuthMiddleware())
+        {
+            authenticated.GET("/balita", balitaHandler.GetAllBalita)
+            authenticated.POST("/balita/create", balitaHandler.CreateBalita)
+            authenticated.PUT("/balita/:id/update", balitaHandler.UpdateBalita)
+            authenticated.GET("/balita/:id/riwayat", balitaHandler.GetRiwayat)
+            authenticated.GET("/balita/:nik", balitaHandler.FindBalitaNIK)
+            authenticated.DELETE("/balita/:nik", balitaHandler.DeleteBalita)
+        }
+    }
 }
 
 func PosyanduRoute(r *gin.Engine) {
