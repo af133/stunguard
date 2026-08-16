@@ -233,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         );
                       },
                       style: TextButton.styleFrom(
-                        backgroundColor: AppColors.errorLight ?? Colors.red.shade50,
+                        backgroundColor: AppColors.errorLight,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

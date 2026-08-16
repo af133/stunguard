@@ -1,10 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../balita/presentation/pages/add_balita_page.dart';
 import '../../../balita/presentation/pages/balita_list_page.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../balita/presentation/providers/balita_provider.dart';
+import '../../../sync/data/services/sync_manager.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
+
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  int _pendingSyncCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSyncCount();
+  }
+
+  Future<void> _loadSyncCount() async {
+    final count = await SyncManager().getPendingCount();
+    if (mounted) {
+      setState(() => _pendingSyncCount = count);
+    }
+  }
 
   void _showNotificationModal(BuildContext context) {
     showModalBottomSheet(
@@ -59,6 +83,15 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final balitaState = ref.watch(balitaProvider);
+    final user = authState.user;
+
+    final registeredCount = balitaState.items.length;
+    // For MVP, just simulate 'diskrining' and 'risiko tinggi' from list length
+    final diskriningCount = (registeredCount * 0.8).toInt();
+    final risikoTinggiCount = (registeredCount * 0.1).toInt();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
@@ -92,7 +125,7 @@ class HomePage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Halo, Ibu Siti! 👋',
+                                  'Halo, ${user?.name.split(' ').first ?? 'User'}! 👋',
                                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -104,7 +137,7 @@ class HomePage extends StatelessWidget {
                                     const Icon(Icons.location_on_outlined, color: Colors.white70, size: 16),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'Kader Posyandu Mawar 1',
+                                      'Kader ${user?.posyanduName ?? 'Posyandu'}',
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                             color: Colors.white70,
                                           ),
@@ -151,11 +184,11 @@ class HomePage extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildStatItem(context, '42', 'Terdaftar', AppColors.textPrimary),
+                        _buildStatItem(context, '$registeredCount', 'Terdaftar', AppColors.textPrimary),
                         _buildDivider(),
-                        _buildStatItem(context, '18', 'Diskrining', AppColors.success),
+                        _buildStatItem(context, '$diskriningCount', 'Diskrining', AppColors.success),
                         _buildDivider(),
-                        _buildStatItem(context, '3', 'Risiko Tinggi', AppColors.error),
+                        _buildStatItem(context, '$risikoTinggiCount', 'Risiko Tinggi', AppColors.error),
                       ],
                     ),
                   ),
@@ -170,66 +203,112 @@ class HomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Alert Banner
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.errorLight,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.error.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppColors.error.withOpacity(0.1),
-                            shape: BoxShape.circle,
+                  if (_pendingSyncCount > 0)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.only(bottom: 24),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade50,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.orange.shade300),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.sync_problem, color: Colors.orange, size: 20),
                           ),
-                          child: const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Tindakan Diperlukan',
-                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                      color: AppColors.error,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '3 anak dengan risiko stunting tinggi belum dikunjungi minggu ini.',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.textPrimary,
-                                    ),
-                              ),
-                              const SizedBox(height: 8),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const BalitaListPage()),
-                                  );
-                                },
-                                child: Text(
-                                  'Lihat daftar anak →',
-                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Sinkronisasi Tertunda',
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                        color: Colors.orange.shade800,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Ada $_pendingSyncCount data yang belum tersinkron ke server. Pastikan Anda online.',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: AppColors.textPrimary,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  
+                  if (risikoTinggiCount > 0)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.errorLight,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.error.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Tindakan Diperlukan',
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                         color: AppColors.error,
                                         fontWeight: FontWeight.bold,
                                       ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 4),
+                                Text(
+                                  '$risikoTinggiCount anak dengan risiko stunting tinggi belum dikunjungi minggu ini.',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: AppColors.textPrimary,
+                                      ),
+                                ),
+                                const SizedBox(height: 8),
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const BalitaListPage()),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Lihat daftar anak →',
+                                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                          color: AppColors.error,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
                   const SizedBox(height: 24),
 
@@ -300,27 +379,28 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Schedule List
-                  _buildChildCard(
-                    context,
-                    name: 'Ahmad Zaki',
-                    details: '1 thn 2 bln • Laki-laki',
-                    location: 'Posyandu: Mawar 1',
-                    lastVisitDate: '10 Sep 2023',
-                    status: 'Perlu Perhatian !',
-                    statusColor: AppColors.warning,
-                    statusBgColor: AppColors.warningLight,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildChildCard(
-                    context,
-                    name: 'Siti Aminah',
-                    details: '2 thn 8 bln • Perempuan',
-                    location: 'Posyandu: Mawar 1',
-                    lastVisitDate: '12 Sep 2023',
-                    status: 'Risiko Rendah ✓',
-                    statusColor: AppColors.success,
-                    statusBgColor: AppColors.successLight,
-                  ),
+                  balitaState.items.isEmpty 
+                    ? const Center(child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text('Belum ada data anak terdaftar.'),
+                      ))
+                    : Column(
+                        children: balitaState.items.take(3).map((item) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: _buildChildCard(
+                              context,
+                              name: item.name,
+                              details: '${item.ageDisplay} • ${item.gender == "L" ? "Laki-laki" : "Perempuan"}',
+                              location: 'Posyandu: ${user?.posyanduName ?? "TBD"}',
+                              lastVisitDate: 'Belum diukur',
+                              status: item.syncStatus == 'SYNCED' ? 'Tersinkron' : 'Offline',
+                              statusColor: item.syncStatus == 'SYNCED' ? AppColors.success : AppColors.warning,
+                              statusBgColor: item.syncStatus == 'SYNCED' ? AppColors.successLight : AppColors.warningLight,
+                            ),
+                          );
+                        }).toList(),
+                      ),
 
                   const SizedBox(height: 32),
                 ],

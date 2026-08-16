@@ -35,4 +35,22 @@ class NotificationService {
       notificationDetails: notificationDetails,
     );
   }
+
+  static Future<void> scheduleMonthlyReminder({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduleDate,
+  }) async {
+    // Simulated scheduling
+  }
+
+  static Future<void> scheduleFollowUpReminder({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduleDate,
+  }) async {
+    // Simulated scheduling
+  }
 }

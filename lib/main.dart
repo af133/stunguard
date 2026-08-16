@@ -8,7 +8,7 @@ import 'features/auth/presentation/pages/login_page.dart';
 void main() {
   runApp(
     DevicePreview(
-      enabled: !kReleaseMode,
+      enabled: kReleaseMode,
       builder: (context) => const ProviderScope(
         child: MyApp(),
       ),

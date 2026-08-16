@@ -1,6 +1,8 @@
+import 'dart:io' show Platform;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseHelper {
   static const _databaseName = "stuntguard.db";
@@ -18,8 +20,20 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    final documentsDirectory = await getApplicationDocumentsDirectory();
-    final path = join(documentsDirectory.path, _databaseName);
+    // Initialize FFI for Desktop platforms to prevent "databaseFactory not initialized" error
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+
+    String path;
+    try {
+      final documentsDirectory = await getApplicationDocumentsDirectory();
+      path = join(documentsDirectory.path, _databaseName);
+    } catch (e) {
+      // Fallback to in-memory DB if path_provider fails (e.g. during UI mockup or Web/Desktop test)
+      path = inMemoryDatabasePath;
+    }
 
     return await openDatabase(
       path,
@@ -149,6 +163,21 @@ class DatabaseHelper {
   static Future<void> seedDummyData(Database db) async {
     final now = DateTime.now().toIso8601String();
     
+    // Seed User
+    final userCount = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM users'));
+    if (userCount == null || userCount == 0) {
+      await db.insert('users', {
+        'id': 'user_dummy_1',
+        'name': 'Kader Dummy (Test)',
+        'nik': '3273010000000000',
+        'phone': '081234567890',
+        'posyandu_name': 'Posyandu Melati',
+        'work_area': 'Desa Sukamaju',
+        'role': 'kader',
+        'created_at': now,
+      });
+    }
+
     // Check if balita table is empty
     final count = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM balita'));
     if (count != null && count > 0) return;

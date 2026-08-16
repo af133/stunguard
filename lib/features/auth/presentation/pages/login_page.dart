@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../beranda/presentation/pages/main_screen.dart';
+import '../providers/auth_provider.dart';
 import 'register_page.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   String selectedRole = 'kader'; // 'kader' or 'orang_tua'
+  final _phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,21 +133,22 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         Expanded(
                           child: TextField(
+                            controller: _phoneController,
                             keyboardType: TextInputType.phone,
-                            decoration: InputDecoration(
-                              hintText: '812 3456 7890',
-                              border: const OutlineInputBorder(
+                            decoration: const InputDecoration(
+                              hintText: '81234567890',
+                              border: OutlineInputBorder(
                                 borderRadius: BorderRadius.only(
                                   topRight: Radius.circular(12),
                                   bottomRight: Radius.circular(12),
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: const BorderRadius.only(
+                                borderRadius: BorderRadius.only(
                                   topRight: Radius.circular(12),
                                   bottomRight: Radius.circular(12),
                                 ),
-                                borderSide: const BorderSide(color: AppColors.border),
+                                borderSide: BorderSide(color: AppColors.border),
                               ),
                             ),
                           ),
@@ -147,20 +157,55 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 32),
                     
-                    ElevatedButton(
-                      onPressed: () {
-                        // TODO: Implement actual OTP logic
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (_) => const MainScreen()),
-                        );
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text('Kirim Kode OTP'),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward),
-                        ],
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final phone = _phoneController.text.trim();
+                          if (phone.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Nomor HP tidak boleh kosong')),
+                            );
+                            return;
+                          }
+
+                          final success = await ref.read(authProvider.notifier).login(phone, selectedRole);
+                          
+                          if (success && mounted) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (_) => const MainScreen()),
+                            );
+                          } else if (mounted) {
+                            final error = ref.read(authProvider).error;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(error ?? 'Gagal masuk'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: ref.watch(authProvider).isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Text('Masuk', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                                  SizedBox(width: 8),
+                                  Icon(Icons.arrow_forward, color: Colors.white),
+                                ],
+                              ),
                       ),
                     ),
                     
