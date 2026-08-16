@@ -1,44 +1,81 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, User, Lock, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
-import { useAuth, type UserRole } from './AuthContext';
+import { ShieldCheck, User, Lock, ArrowRight, CheckCircle2, Loader2, MapPin } from 'lucide-react';
+import { type UserRole } from './AuthContext';
 
-const LoginPage = () => {
-  const [email, setEmail] = useState('petugas.caringin@stunguard.com');
-  const [password, setPassword] = useState('password123');
+const RegisterPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('petugas_puskesmas');
+  const [posyanduList, setPosyanduList] = useState<any[]>([]);
+  const [selectedPosyanduId, setSelectedPosyanduId] = useState('');
   
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingPosyandu, setIsFetchingPosyandu] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const { login } = useAuth();
   const navigate = useNavigate();
+  useEffect(() => {
+    const fetchPosyandu = async () => {
+      setIsFetchingPosyandu(true);
+      try {
+        const response = await fetch('https://stunguard.onrender.com/api/v1/posyandu/get-all');
+        const result = await response.json();
 
- const handleSubmit = async (e: React.FormEvent) => {
+        if (!response.ok) {
+          throw new Error(result.message || 'Gagal memuat data posyandu');
+        }
+
+        if (result.success && Array.isArray(result.data)) {
+          setPosyanduList(result.data);
+          if (result.data.length > 0) {
+            setSelectedPosyanduId(String(result.data[0].ID));
+          }
+        }
+      } catch (error: any) {
+        console.error('Gagal mengambil posyandu:', error.message);
+      } finally {
+        setIsFetchingPosyandu(false);
+      }
+    };
+
+    fetchPosyandu();
+  }, []);
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage('');
+    setSuccessMessage('');
+
     try {
-      const response = await fetch('https://stunguard.onrender.com/api/login/petugas', {
+      const response = await fetch('https://stunguard.onrender.com/api/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role, email, password }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          role,
+          email,
+          password,
+          wilayah_kerja_id: Number(selectedPosyanduId), 
+        }),
       });
-      const result = await response.json();
-      console.log("Respon Login Backend:", result);
+
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(result.message || result.error || 'Username atau password salah');
+        throw new Error(data.error || data.message || 'Gagal melakukan pendaftaran. Silakan coba lagi.');
       }
-      if (result.token) {
-        localStorage.setItem('token', result.token);
-        localStorage.setItem('user', JSON.stringify(result.data)); 
-      } else {
-        throw new Error('Token tidak ditemukan dari server');
-      }
-      login(role);
-      navigate('/dashboard');
+
+      setSuccessMessage('Pendaftaran berhasil! Mengarahkan ke halaman login...');
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+      
     } catch (error: any) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.message || 'Terjadi kesalahan pada jaringan.');
     } finally {
       setIsLoading(false);
     }
@@ -57,35 +94,28 @@ const LoginPage = () => {
               <span className="text-2xl font-bold tracking-tight">StuntGuard</span>
             </div>
             <h1 className="text-3xl font-bold leading-tight mb-4">
-              Platform Deteksi Dini & Monitoring Stunting
+              Bergabung dengan Platform Deteksi Dini Stunting
             </h1>
             <p className="text-green-100 text-sm leading-relaxed">
-              Sistem terintegrasi untuk Petugas Puskesmas dan Dinas Kesehatan Kabupaten/Kota dalam memantau gizi balita real-time.
+              Daftarkan akun Anda untuk mulai mengelola dan memantau data gizi balita secara terintegrasi.
             </p>
           </div>
-
           <div className="relative z-10 space-y-3 pt-8 border-t border-green-700/60">
             <div className="flex items-center gap-2.5 text-xs text-green-100 font-medium">
               <CheckCircle2 size={16} className="text-green-300" />
-              Analisis Prediksi AI Multimodal
+              Akses Dasbor Real-time
             </div>
             <div className="flex items-center gap-2.5 text-xs text-green-100 font-medium">
               <CheckCircle2 size={16} className="text-green-300" />
-              Heatmap Persebaran Risiko Interaktif
-            </div>
-            <div className="flex items-center gap-2.5 text-xs text-green-100 font-medium">
-              <CheckCircle2 size={16} className="text-green-300" />
-              Pelaporan Standar Format Kemenkes
+              Pencatatan Data Sesuai Standar Kemenkes
             </div>
           </div>
         </div>
-
-        {/* Right Form Side */}
         <div className="p-10 flex flex-col justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-1">Selamat Datang</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-1">Buat Akun Baru</h2>
             <p className="text-xs text-gray-400 mb-6">
-              Masukkan kredensial akun Anda untuk mengakses dashboard
+              Lengkapi informasi di bawah ini untuk mendaftar
             </p>
 
             {/* Error Notification Alert */}
@@ -95,19 +125,23 @@ const LoginPage = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Success Notification Alert */}
+            {successMessage && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-xs rounded-xl">
+                {successMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleRegister} className="space-y-4">
               {/* Role Selector Tabs */}
               <div>
                 <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2 block">
-                  Pilih Role Akses Demo
+                  Pilih Role Akses
                 </label>
                 <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
                   <button
                     type="button"
-                    onClick={() => {
-                      setRole('petugas_puskesmas');
-                      setEmail('petugas.caringin@stunguard.com');
-                    }}
+                    onClick={() => setRole('petugas_puskesmas')}
                     className={`py-2 px-3 rounded-lg text-xs font-semibold transition ${
                       role === 'petugas_puskesmas'
                         ? 'bg-white text-green-800 shadow-sm'
@@ -118,10 +152,7 @@ const LoginPage = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setRole('admin_dinkes');
-                      setEmail('admin.dinkes@stunguard.com');
-                    }}
+                    onClick={() => setRole('admin_dinkes')}
                     className={`py-2 px-3 rounded-lg text-xs font-semibold transition ${
                       role === 'admin_dinkes'
                         ? 'bg-white text-green-800 shadow-sm'
@@ -130,6 +161,34 @@ const LoginPage = () => {
                   >
                     Admin Dinkes
                   </button>
+                </div>
+              </div>
+
+              {/* Dropdown Posyandu */}
+              <div>
+                <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5 block">
+                  Pilih Posyandu
+                </label>
+                <div className="relative">
+                  <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 z-10" />
+                  <select
+                    value={selectedPosyanduId}
+                    onChange={(e) => setSelectedPosyanduId(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition appearance-none cursor-pointer"
+                    required
+                  >
+                    {isFetchingPosyandu ? (
+                      <option value="">Memuat data posyandu...</option>
+                    ) : posyanduList.length === 0 ? (
+                      <option value="">Tidak ada posyandu tersedia</option>
+                    ) : (
+                      posyanduList.map((posyandu) => (
+                        <option key={posyandu.ID} value={posyandu.ID}>
+                          {posyandu.Nama} ({posyandu.WilayahKerja})
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </div>
               </div>
 
@@ -144,6 +203,7 @@ const LoginPage = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    placeholder="nama@email.com"
                     className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition"
                     required
                   />
@@ -161,6 +221,7 @@ const LoginPage = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
                     className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition"
                     required
                   />
@@ -170,7 +231,7 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-green-800 text-white py-3 rounded-xl text-sm font-semibold hover:bg-green-900 transition flex items-center justify-center gap-2 shadow-md shadow-green-800/20 disabled:opacity-50"
+                className="w-full bg-green-800 text-white py-3 rounded-xl text-sm font-semibold hover:bg-green-900 transition flex items-center justify-center gap-2 shadow-md shadow-green-800/20 disabled:opacity-50 mt-2"
               >
                 {isLoading ? (
                   <>
@@ -179,19 +240,18 @@ const LoginPage = () => {
                   </>
                 ) : (
                   <>
-                    Masuk ke Dashboard
+                    Daftar Akun
                     <ArrowRight size={16} />
                   </>
                 )}
               </button>
             </form>
 
-            {/* Tombol ke Register */}
             <div className="text-center mt-4">
               <p className="text-xs text-gray-500">
-                Belum punya akun?{' '}
-                <Link to="/register" className="text-green-800 font-semibold hover:underline">
-                  Daftar di sini
+                Sudah punya akun?{' '}
+                <Link to="/" className="text-green-800 font-semibold hover:underline">
+                  Masuk di sini
                 </Link>
               </p>
             </div>
@@ -206,4 +266,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

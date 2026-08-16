@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './features/auth/AuthContext';
 import ProtectedRoute from './features/auth/ProtectedRoute';
-
+import RegisterPage from './features/auth/RegisterPage';
 import LoginPage from './features/auth/LoginPage';
 import DashboardPage from './features/dashboard/DashboardPage';
 import PetaRisikoPage from './features/peta-risiko/PetaRisikoPage';
@@ -21,11 +21,11 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Route */}
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<LoginPage />} />
 
           {/* Protected Routes */}
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <DashboardPage />
