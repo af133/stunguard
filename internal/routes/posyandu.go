@@ -34,8 +34,8 @@ func BalitaRoute(r *gin.Engine) {
         {
             authenticated.GET("/balita", balitaHandler.GetAllBalita)
             authenticated.POST("/balita/create", balitaHandler.CreateBalita)
-            authenticated.PUT("/balita/:id/update", balitaHandler.UpdateBalita)
-            authenticated.GET("/balita/:id/riwayat", balitaHandler.GetRiwayat)
+            authenticated.GET("/balita/update/:id", balitaHandler.UpdateBalita)
+            authenticated.GET("/balita/riwayat/:id", balitaHandler.GetRiwayat)
             authenticated.GET("/balita/:nik", balitaHandler.FindBalitaNIK)
             authenticated.DELETE("/balita/:nik", balitaHandler.DeleteBalita)
         }
