@@ -122,55 +122,43 @@ type LaporanJob struct {
 	RequestedBy  uint
 }
 func ConnectDB() *gorm.DB {
-    _ = godotenv.Load()
-    dsn := os.Getenv("DATABASE_URL")
-    
-    if dsn == "" {
-        host := "localhost"
-        user := "postgres"
-        password := "1234"
-        dbName := "stunguard"
-        port := "5432"
-        dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta",
-            host, user, password, dbName, port)
-        fmt.Println("Warning: DATABASE_URL tidak ditemukan, menggunakan konfigurasi lokal default.")
-    }
+	_ = godotenv.Load()
+	dsn := os.Getenv("DATABASE_URL")
+	
+	if dsn == "" {
+		host := "localhost"
+		user := "postgres"
+		password := "1234"
+		dbName := "stunguard"
+		port := "5432"
+		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta",
+			host, user, password, dbName, port)
+		fmt.Println("Warning: DATABASE_URL tidak ditemukan, menggunakan konfigurasi lokal default.")
+	}
 
-    var err error
-    DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-    if err != nil {
-        log.Fatal("Gagal terkoneksi ke database:", err)
-    }
+	var err error
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Gagal terkoneksi ke database:", err)
+	}
+	err = DB.AutoMigrate(
+		&DinasKesehatan{},
+		&Puskesmas{},
+		&Posyandu{},
+		&User{},
+		&Kader{},
+		&Balita{},
+		&Pengukuran{},
+		&HasilDeteksiRisiko{},
+		&LogNutrisi{},
+		&Alert{},
+		&LaporanJob{},
+	)
+	if err != nil {
+		log.Fatal("Gagal melakukan auto migration:", err)
+	}
 
-    fmt.Println("Berhasil terhubung ke PostgreSQL!")
+	fmt.Println("Koneksi database dan Auto Migrate berhasil!")
 
-    // SELALU DROP SEMUA TABEL DARI NOL (Berlaku Lokal maupun Render)
-    fmt.Println("Melakukan reset total schema database (Drop & Recreate)...")
-    err = DB.Exec("DROP SCHEMA public CASCADE; CREATE SCHEMA public;").Error
-    if err != nil {
-        log.Fatal("Gagal mereset schema database:", err)
-    }
-    fmt.Println("Database berhasil dibersihkan total dari nol.")
-
-    fmt.Println("Menjalankan Auto Migrate tabel...")
-    err = DB.AutoMigrate(
-        &DinasKesehatan{},
-        &Puskesmas{},
-        &Posyandu{},
-        &User{},
-        &Kader{},
-        &Balita{},
-        &Pengukuran{},
-        &HasilDeteksiRisiko{},
-        &LogNutrisi{},
-        &Alert{},
-        &LaporanJob{},
-    )
-    if err != nil {
-        log.Fatal("Gagal melakukan auto migration:", err)
-    }
-
-    fmt.Println("Auto Migrate berhasil!")
-
-    return DB
+	return DB
 }

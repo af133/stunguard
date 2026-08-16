@@ -49,10 +49,10 @@ func PosyanduRoute(r *gin.Engine) {
 
     api := r.Group("/api/v1/posyandu")
     {
+		api.GET("/get-all", posyanduHandler.GetAllPosyandu)
         authenticated := api.Group("/")
         authenticated.Use(middleware.AuthMiddleware())
         {
-            authenticated.GET("/get-all", posyanduHandler.GetAllPosyandu)
             authenticated.POST("/create", posyanduHandler.CreatePosyandu)
             authenticated.GET("/:id", posyanduHandler.FindPosyandu)
             authenticated.PUT("/:id/update", posyanduHandler.UpdatePosyandu)
