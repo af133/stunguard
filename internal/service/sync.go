@@ -58,7 +58,6 @@ type SyncPushResponse struct {
 func (s *SyncService) Push(input SyncPushInput) (*SyncPushResponse, error) {
 	resp := &SyncPushResponse{}
 
-	// Process Balita
 	for _, b := range input.Balita {
 		b.SyncStatus = "synced"
 		err := s.BalitaRepo.UpsertBalita(&b)
@@ -74,7 +73,6 @@ func (s *SyncService) Push(input SyncPushInput) (*SyncPushResponse, error) {
 		resp.Results = append(resp.Results, result)
 	}
 
-	// Process Pengukuran
 	for _, p := range input.Pengukuran {
 		p.SyncStatus = "synced"
 		err := s.PengukuranRepo.Upsert(&p)
@@ -90,7 +88,6 @@ func (s *SyncService) Push(input SyncPushInput) (*SyncPushResponse, error) {
 		resp.Results = append(resp.Results, result)
 	}
 
-	// Process Hasil Deteksi + trigger alert for high risk
 	for _, h := range input.HasilDeteksi {
 		h.SyncStatus = "synced"
 		err := s.HasilDeteksiRepo.Upsert(&h)

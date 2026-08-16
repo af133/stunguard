@@ -22,8 +22,6 @@ type JWTClaim struct {
 	WilayahKerjaID uint   `json:"wilayah_kerja_id"`
 	jwt.RegisteredClaims
 }
-
-// GenerateToken creates an access token (24h expiry)
 func GenerateToken(id uint, email string, role string, wilayahKerjaID uint) (string, error) {
 	claims := JWTClaim{
 		ID:             id,
@@ -40,8 +38,6 @@ func GenerateToken(id uint, email string, role string, wilayahKerjaID uint) (str
 	tokenString, err := token.SignedString(getJWTSecret())
 	return tokenString, err
 }
-
-// GenerateRefreshToken creates a refresh token (7 days expiry)
 func GenerateRefreshToken(id uint, email string, role string, wilayahKerjaID uint) (string, error) {
 	claims := JWTClaim{
 		ID:             id,
@@ -59,7 +55,6 @@ func GenerateRefreshToken(id uint, email string, role string, wilayahKerjaID uin
 	return tokenString, err
 }
 
-// ParseToken validates and parses a JWT token string
 func ParseToken(tokenString string) (*JWTClaim, error) {
 	claims := &JWTClaim{}
 	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
