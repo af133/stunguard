@@ -55,7 +55,7 @@ class NotifikasiPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: BorderSide(
-                      color: notif['isRead'] ? Colors.transparent : AppColors.primary.withOpacity(0.3),
+                      color: notif['isRead'] ? Colors.transparent : AppColors.primary.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),

@@ -328,7 +328,7 @@ class _BalitaDetailPageState extends ConsumerState<BalitaDetailPage> {
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: pengukuranState.items.length,
-                                  separatorBuilder: (_, __) => const Divider(),
+                                  separatorBuilder: (context, index) => const Divider(),
                                   itemBuilder: (context, index) {
                                     final m = pengukuranState.items[index];
                                     return ListTile(

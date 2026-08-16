@@ -112,7 +112,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               );
 
                               final success = await ref.read(authProvider.notifier).register(newUser);
-                              if (success && mounted) {
+                              if (!context.mounted) return;
+
+                              if (success) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Pendaftaran berhasil! Silakan masuk.'),
@@ -120,7 +122,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                   ),
                                 );
                                 Navigator.of(context).pop();
-                              } else if (mounted) {
+                              } else {
                                 final error = ref.read(authProvider).error;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(

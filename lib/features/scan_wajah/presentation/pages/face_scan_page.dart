@@ -83,7 +83,7 @@ class _FaceScanPageState extends State<FaceScanPage> {
                         : Icon(
                             Icons.face,
                             size: 140,
-                            color: Colors.white.withOpacity(0.4),
+                            color: Colors.white.withValues(alpha: 0.4),
                           ),
                   ),
                 ),

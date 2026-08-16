@@ -32,7 +32,7 @@ class StuntingRiskInput {
     required this.aksesSanitasi,
   });
 
-  /// Convert to 14-element List<double> matching model input vector specification
+  /// Convert to 14-element `List<double>` matching model input vector specification
   List<double> toFeatureVector() {
     return [
       zscoreTbu,

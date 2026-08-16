@@ -148,7 +148,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ),
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
@@ -175,7 +175,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -218,7 +218,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.1),
+                              color: Colors.orange.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.sync_problem, color: Colors.orange, size: 20),
@@ -255,7 +255,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       decoration: BoxDecoration(
                         color: AppColors.errorLight,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,7 +263,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: AppColors.error.withOpacity(0.1),
+                              color: AppColors.error.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 20),

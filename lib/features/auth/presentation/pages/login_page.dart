@@ -48,7 +48,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           )
@@ -172,11 +172,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                           final success = await ref.read(authProvider.notifier).login(phone, selectedRole);
                           
-                          if (success && mounted) {
+                          if (!context.mounted) return;
+                          
+                          if (success) {
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (_) => const MainScreen()),
                             );
-                          } else if (mounted) {
+                          } else {
                             final error = ref.read(authProvider).error;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

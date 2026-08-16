@@ -137,7 +137,7 @@ class _DeteksiRisikoPageState extends State<DeteksiRisikoPage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                           decoration: BoxDecoration(
-                            color: themeColor.withOpacity(0.15),
+                            color: themeColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: themeColor),
                           ),

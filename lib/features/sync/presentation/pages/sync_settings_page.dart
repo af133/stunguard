@@ -49,7 +49,7 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
         } else {
           _lastError = result.errorMessage;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sinkronisasi gagal: ${_lastError}'), backgroundColor: Colors.red),
+            SnackBar(content: Text('Sinkronisasi gagal: $_lastError'), backgroundColor: Colors.red),
           );
         }
       });

@@ -273,32 +273,20 @@ class _AddBalitaPageState extends ConsumerState<AddBalitaPage> {
               const SizedBox(height: 14),
 
               // Jenis Kelamin
-              const Text('Jenis Kelamin *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-              Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile<String>(
-                      title: const Text('Laki-laki'),
-                      value: 'L',
-                      groupValue: _selectedGender,
-                      activeColor: AppColors.primary,
-                      onChanged: (val) {
-                        setState(() => _selectedGender = val!);
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: RadioListTile<String>(
-                      title: const Text('Perempuan'),
-                      value: 'P',
-                      groupValue: _selectedGender,
-                      activeColor: AppColors.primary,
-                      onChanged: (val) {
-                        setState(() => _selectedGender = val!);
-                      },
-                    ),
-                  ),
+              DropdownButtonFormField<String>(
+                initialValue: _selectedGender,
+                decoration: const InputDecoration(
+                  labelText: 'Jenis Kelamin *',
+                  prefixIcon: Icon(Icons.wc),
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'L', child: Text('Laki-laki')),
+                  DropdownMenuItem(value: 'P', child: Text('Perempuan')),
                 ],
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedGender = val);
+                },
               ),
               const SizedBox(height: 14),
 
@@ -361,7 +349,7 @@ class _AddBalitaPageState extends ConsumerState<AddBalitaPage> {
 
               // Riwayat BBLR
               DropdownButtonFormField<String>(
-                value: _bblrHistory,
+                initialValue: _bblrHistory,
                 decoration: const InputDecoration(
                   labelText: 'Riwayat BBLR (Berat Badan Lahir Rendah < 2500g)',
                   prefixIcon: Icon(Icons.child_friendly),
