@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/af133/stunguard/internal"
+	"github.com/af133/stunguard/internal/encryption"
 	"github.com/af133/stunguard/internal/repositories"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -200,21 +201,46 @@ func (s *UserService) FindByID(id uint) (*internal.User, error) {
 
 // =================== Balita Service ===================
 
+func (s *BalitaService) encryptBalita(b *internal.Balita) error {
+	var err error
+	if b.NIK, err = encryption.Encrypt(b.NIK); err != nil { return err }
+	if b.Nama, err = encryption.Encrypt(b.Nama); err != nil { return err }
+	if b.NamaIbu, err = encryption.Encrypt(b.NamaIbu); err != nil { return err }
+	if b.Alamat, err = encryption.Encrypt(b.Alamat); err != nil { return err }
+	return nil
+}
+
+func (s *BalitaService) decryptBalita(b *internal.Balita) {
+	if dec, err := encryption.Decrypt(b.NIK); err == nil { b.NIK = dec }
+	if dec, err := encryption.Decrypt(b.Nama); err == nil { b.Nama = dec }
+	if dec, err := encryption.Decrypt(b.NamaIbu); err == nil { b.NamaIbu = dec }
+	if dec, err := encryption.Decrypt(b.Alamat); err == nil { b.Alamat = dec }
+}
+
 func (s *BalitaService) GetAllBalita() ([]internal.Balita, error) {
 	var balita []internal.Balita
 	err := s.Repo.GetAllBalita(&balita)
+	for i := range balita {
+		s.decryptBalita(&balita[i])
+	}
 	return balita, err
 }
 
 func (s *BalitaService) GetBalitaPaginated(page, limit int, search, kategoriRisiko, wilayah string) ([]internal.Balita, int64, error) {
 	if page < 1 { page = 1 }
 	if limit < 1 || limit > 100 { limit = 20 }
-	return s.Repo.GetBalitaPaginated(page, limit, search, kategoriRisiko, wilayah)
+	balitaList, total, err := s.Repo.GetBalitaPaginated(page, limit, search, kategoriRisiko, wilayah)
+	for i := range balitaList {
+		s.decryptBalita(&balitaList[i])
+	}
+	return balitaList, total, err
 }
 
 func (s *BalitaService) CreateBalita(input BalitaInput) (*internal.Balita, error) {
+	// Encrypt NIK to check existence
+	encNIK, _ := encryption.Encrypt(input.NIK)
 	if input.NIK != "" {
-		existing, err := s.Repo.FindNikBalita(input.NIK)
+		existing, err := s.Repo.FindNikBalita(encNIK)
 		if err == nil && existing != nil {
 			return nil, errors.New("NIK balita telah terdaftar")
 		}
@@ -226,17 +252,27 @@ func (s *BalitaService) CreateBalita(input BalitaInput) (*internal.Balita, error
 		UsiaMulaiMpasi: input.UsiaMulaiMpasi, PosyanduID: input.PosyanduID,
 		SyncStatusOrigin: input.SyncStatusOrigin, SyncStatus: "synced",
 	}
+	if err := s.encryptBalita(balita); err != nil {
+		return nil, errors.New("gagal mengenkripsi data balita")
+	}
 	err := s.Repo.CreateBalita(balita)
 	if err != nil { return nil, err }
+	s.decryptBalita(balita) 
 	return balita, nil
 }
 
 func (s *BalitaService) FindBalitaNIK(nik string) (*internal.Balita, error) {
-	return s.Repo.FindNikBalita(nik)
+	encNIK, _ := encryption.Encrypt(nik)
+	b, err := s.Repo.FindNikBalita(encNIK)
+	if err == nil && b != nil {
+		s.decryptBalita(b)
+	}
+	return b, err
 }
 
 func (s *BalitaService) DeleteBalitaNIK(nik string) error {
-	return s.Repo.DeleteBalita(nik)
+	encNIK, _ := encryption.Encrypt(nik)
+	return s.Repo.DeleteBalita(encNIK)
 }
 
 func (s *BalitaService) UpdateBalita(id string, input BalitaInput) (*internal.Balita, error) {
@@ -253,8 +289,12 @@ func (s *BalitaService) UpdateBalita(id string, input BalitaInput) (*internal.Ba
 	existing.UsiaMulaiMpasi = input.UsiaMulaiMpasi
 	existing.PosyanduID = input.PosyanduID
 	existing.SyncStatusOrigin = input.SyncStatusOrigin
+	if err := s.encryptBalita(existing); err != nil {
+		return nil, errors.New("gagal mengenkripsi data balita")
+	}
 	err = s.Repo.UpdateBalita(existing)
 	if err != nil { return nil, err }
+	s.decryptBalita(existing)
 	return existing, nil
 }
 

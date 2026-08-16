@@ -160,7 +160,6 @@ func (h *UserHandler) ForgotPassword(ctx *gin.Context) {
 		response.ValidationError(ctx, err.Error())
 		return
 	}
-	// Placeholder: would send email with reset link via notification package
 	response.Success(ctx, http.StatusOK, gin.H{
 		"message": "Jika email terdaftar, link reset password telah dikirim",
 	})

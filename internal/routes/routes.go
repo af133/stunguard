@@ -22,9 +22,16 @@ func SetupRoutes(r *gin.Engine) {
         })
     })
     
+    AuthRoutes(r)
     BalitaRoute(r)
-    RegisterOrLoginPosyanduRoutes(r)
     PosyanduRoute(r)
     DinasKesehatanRoute(r)
     PuskesmasRoute(r)
+    KaderRoute(r)
+    PengukuranRoute(r)
+    SyncRoute(r)
+    DashboardRoute(r)
+    AnalitikRoute(r)
+    LaporanRoute(r)
+    AlertRoute(r)
 }

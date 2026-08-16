@@ -212,15 +212,11 @@ DELETE /api/profile
 
 ---
 
-# 📌 API Endpoint
+# 📌 Dokumentasi API
 
-## Register User
+Untuk dokumentasi lengkap mengenai seluruh endpoint (Auth, Balita, Pengukuran, Sync, Dashboard, dll.), contoh *request*, dan contoh *response*, silakan merujuk ke file:
 
-| Method | Endpoint | Access |
-|---------|----------|--------|
-| POST | `/api/register` | Public |
-
-Digunakan untuk mendaftarkan akun pengguna baru.
+👉 **[API_DOCS.md](./API_DOCS.md)**
 
 ---
 

@@ -7,7 +7,6 @@ import (
 	"github.com/af133/stunguard/pkg/response"
 	"github.com/gin-gonic/gin"
 )
-
 // AuthMiddleware validates JWT tokens from the Authorization header
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
