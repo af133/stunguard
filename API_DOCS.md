@@ -97,32 +97,14 @@ Mendaftarkan kader baru. Akun yang baru didaftarkan akan berstatus `pending` hin
 
 ---
 
-## 2. 👶 Modul Balita (`/api/v1/balita`)
+## 2. 👶 Modul Balita (`/api/v1`)
 
 *Endpoint ini memerlukan Autentikasi Token.*
 
 ### 2.1 Get Semua Data Balita (Paginated & Filter)
 - **URL**: `/api/v1/balita?page=1&limit=20&search=Nama&kategori_risiko=tinggi&wilayah=Wilayah1`
 - **Method**: `GET`
-- **Response**:
-```json
-{
-  "success": true,
-  "data": {
-    "balita": [
-      {
-        "id": 1,
-        "nik": "321...",
-        "nama": "Budi",
-        "tanggal_lahir": "2023-01-01T00:00:00Z"
-      }
-    ],
-    "limit": 20,
-    "page": 1,
-    "total": 100
-  }
-}
-```
+- **Response**: Mengembalikan daftar balita beserta data pagination.
 
 ### 2.2 Tambah Balita Baru
 - **URL**: `/api/v1/balita/create`
@@ -141,7 +123,28 @@ Mendaftarkan kader baru. Akun yang baru didaftarkan akan berstatus `pending` hin
   "posyandu_id": 1
 }
 ```
-*Catatan: Data sensitif seperti NIK, Nama, Nama Ibu, dan Alamat akan dienkripsi otomatis (AES-256) saat disimpan ke database.*
+*Catatan: Data sensitif seperti NIK, Nama, Nama Ibu, dan Alamat akan dienkripsi otomatis (AES-256) saat disimpan.*
+
+### 2.3 Update Data Balita
+- **URL**: `/api/v1/balita/update/:id`
+- **Method**: `GET` (sesuai definisi route)
+- **Body**: Menggunakan format JSON yang sama seperti saat `create`.
+- **Response**: Mengembalikan data balita yang telah diupdate.
+
+### 2.4 Riwayat Data Balita
+- **URL**: `/api/v1/balita/riwayat/:id`
+- **Method**: `GET`
+- **Response**: Menampilkan data riwayat pengukuran, nutrisi, dan deteksi untuk balita tersebut.
+
+### 2.5 Cari Balita Berdasarkan NIK
+- **URL**: `/api/v1/balita/:nik`
+- **Method**: `GET`
+- **Response**: Mengembalikan data detail balita.
+
+### 2.6 Hapus Data Balita
+- **URL**: `/api/v1/balita/:nik`
+- **Method**: `DELETE`
+- **Response**: Konfirmasi penghapusan data balita.
 
 ---
 
