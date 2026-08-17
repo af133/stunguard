@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, User, Lock, ArrowRight, CheckCircle2, Loader2, MapPin } from 'lucide-react';
 import { type UserRole } from './AuthContext';
+import API_URL from '../../config/api';
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ const RegisterPage = () => {
     const fetchPosyandu = async () => {
       setIsFetchingPosyandu(true);
       try {
-        const response = await fetch('https://stunguard.onrender.com/api/v1/posyandu/get-all');
+        const response = await fetch(`${API_URL}/v1/posyandu/get-all`);
         const result = await response.json();
 
         if (!response.ok) {
@@ -50,7 +51,7 @@ const RegisterPage = () => {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('https://stunguard.onrender.com/api/register', {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

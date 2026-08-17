@@ -28,32 +28,33 @@ const defaultUser: User = {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('stuntguard_user');
-    return saved ? JSON.parse(saved) : defaultUser;
+  const [user, setUser] = useState<any | null>(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
   });
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('stuntguard_user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(user));
     } else {
-      localStorage.removeItem('stuntguard_user');
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
     }
   }, [user]);
 
   const login = (role: UserRole) => {
-    const newUser: User = {
-      id: role === 'admin_dinkes' ? 'U02' : 'U01',
-      nama: role === 'admin_dinkes' ? 'Drs. H. Bambang S.' : 'Dr. Siti Aminah',
-      role,
-      wilayah: role === 'admin_dinkes' ? 'Dinas Kesehatan Kab. Bogor' : 'Puskesmas Caringin',
-      avatar: role === 'admin_dinkes' ? 'BS' : 'SA',
-    };
-    setUser(newUser);
+    // Membaca user yang baru saja disimpan oleh LoginPage
+    const saved = localStorage.getItem('user');
+    if (saved) {
+      setUser(JSON.parse(saved));
+    }
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/';
   };
 
   return (

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, User, Lock, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { useAuth, type UserRole } from './AuthContext';
+import API_URL from '../../config/api';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('petugas.caringin@stunguard.com');
@@ -19,19 +20,22 @@ const LoginPage = () => {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      const response = await fetch('https://stunguard.onrender.com/api/login/petugas', {
+      const response = await fetch(`${API_URL}/auth/login/petugas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role, email, password }),
       });
       const result = await response.json();
       console.log("Respon Login Backend:", result);
-      if (!response.ok) {
-        throw new Error(result.message || result.error || 'Username atau password salah');
+      
+      if (!response.ok || !result.success) {
+        const errMsg = result.error?.message || result.error || result.message || 'Username atau password salah';
+        throw new Error(typeof errMsg === 'string' ? errMsg : 'Username atau password salah');
       }
-      if (result.token) {
-        localStorage.setItem('token', result.token);
-        localStorage.setItem('user', JSON.stringify(result.data)); 
+      
+      if (result.data && result.data.token) {
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('user', JSON.stringify(result.data.user)); 
       } else {
         throw new Error('Token tidak ditemukan dari server');
       }
