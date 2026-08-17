@@ -39,10 +39,10 @@ const LoginPage = () => {
       } else {
         throw new Error('Token tidak ditemukan dari server');
       }
-      login(role);
+      login();
       navigate('/dashboard');
-    } catch (error: any) {
-      setErrorMessage(error.message);
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : 'Terjadi kesalahan');
     } finally {
       setIsLoading(false);
     }

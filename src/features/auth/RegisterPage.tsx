@@ -4,11 +4,17 @@ import { ShieldCheck, User, Lock, ArrowRight, CheckCircle2, Loader2, MapPin } fr
 import { type UserRole } from './AuthContext';
 import API_URL from '../../config/api';
 
+interface Posyandu {
+  ID: string | number;
+  Nama: string;
+  WilayahKerja: string;
+}
+
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('petugas_puskesmas');
-  const [posyanduList, setPosyanduList] = useState<any[]>([]);
+  const [posyanduList, setPosyanduList] = useState<Posyandu[]>([]);
   const [selectedPosyanduId, setSelectedPosyanduId] = useState('');
   
   const [isLoading, setIsLoading] = useState(false);
@@ -34,8 +40,8 @@ const RegisterPage = () => {
             setSelectedPosyanduId(String(result.data[0].ID));
           }
         }
-      } catch (error: any) {
-        console.error('Gagal mengambil posyandu:', error.message);
+      } catch (error: unknown) {
+        console.error('Gagal mengambil posyandu:', error instanceof Error ? error.message : String(error));
       } finally {
         setIsFetchingPosyandu(false);
       }
@@ -75,8 +81,8 @@ const RegisterPage = () => {
         navigate('/');
       }, 2000);
       
-    } catch (error: any) {
-      setErrorMessage(error.message || 'Terjadi kesalahan pada jaringan.');
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : 'Terjadi kesalahan pada jaringan.');
     } finally {
       setIsLoading(false);
     }

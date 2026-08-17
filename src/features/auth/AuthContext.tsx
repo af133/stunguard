@@ -12,23 +12,17 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (role: UserRole) => void;
+  login: () => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const defaultUser: User = {
-  id: 'U01',
-  nama: 'Dr. Siti Aminah',
-  role: 'petugas_puskesmas',
-  wilayah: 'Puskesmas Caringin',
-  avatar: 'SA',
-};
+
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<any | null>(() => {
+  const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   });
@@ -42,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  const login = (role: UserRole) => {
+  const login = () => {
     // Membaca user yang baru saja disimpan oleh LoginPage
     const saved = localStorage.getItem('user');
     if (saved) {
@@ -71,6 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
