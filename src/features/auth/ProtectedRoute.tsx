@@ -5,6 +5,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  // Cek keberadaan token di localStorage
   const token = localStorage.getItem('token');
   if (!token) {
     return <Navigate to="/" replace />;

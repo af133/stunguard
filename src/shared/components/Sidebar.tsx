@@ -15,7 +15,7 @@ import { useAuth } from '../../features/auth/AuthContext';
 import { listAlerts } from '../data/mockData';
 
 const menuItems = [
-  { label: 'Dashboard', path: '/', icon: LayoutDashboard },
+  { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { label: 'Peta Risiko', path: '/peta-risiko', icon: Map },
   { label: 'Data Anak', path: '/data-anak', icon: Baby },
   { label: 'Posyandu', path: '/posyandu', icon: Building2 },
